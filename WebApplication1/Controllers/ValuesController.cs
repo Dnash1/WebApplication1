@@ -8,6 +8,11 @@ using Swashbuckle.Swagger.Annotations;
 
 namespace WebApplication1.Controllers
 {
+    public class ResponseItem
+    {
+        public string ActorName { get; set; }
+        public string MovieName { get; set; }
+    }
     public class ValuesController : ApiController
     {
         // GET api/values
@@ -21,9 +26,15 @@ namespace WebApplication1.Controllers
         [SwaggerOperation("GetById")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public string Get(int id)
+        public IEnumerable<ResponseItem> Get(string id)
         {
-            return "value";
+            WebRequest ActorReq = WebRequest.Create("https://api.themoviedb.org/3/search/person?api_key=6614f88415a7eeb7f3b865101aff56de&language=en-US&query=Brad%20Pitt&page=1&include_adult=false");
+            WebResponse ActorRes = ActorReq.GetResponse();
+            yield return new ResponseItem
+            {
+                ActorName = ActorRes.results."profile_path",
+                MovieName = "blah"
+            };
         }
 
         // POST api/values
