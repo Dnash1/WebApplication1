@@ -5,6 +5,8 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using Swashbuckle.Swagger.Annotations;
+using System.IO;
+using System.Web.Script.Serialization;
 
 namespace WebApplication1.Controllers
 {
@@ -26,15 +28,20 @@ namespace WebApplication1.Controllers
         [SwaggerOperation("GetById")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public IEnumerable<ResponseItem> Get(string id)
+        public string Get(string id)
         {
-            WebRequest ActorReq = WebRequest.Create("https://api.themoviedb.org/3/search/person?api_key=6614f88415a7eeb7f3b865101aff56de&language=en-US&query=Brad%20Pitt&page=1&include_adult=false");
-            WebResponse ActorRes = ActorReq.GetResponse();
-            yield return new ResponseItem
+            if (id != null)
             {
-                ActorName = ActorRes.results."profile_path",
-                MovieName = "blah"
-            };
+                WebRequest ActorReq = WebRequest.Create("https://api.themoviedb.org/3/search/person?api_key=6614f88415a7eeb7f3b865101aff56de&language=en-US&query=" + id + "&page=1&include_adult=false");
+                WebResponse ActorRes = ActorReq.GetResponse();
+                Stream dataStream = ActorRes.GetResponseStream();
+                StreamReader reader = new StreamReader(dataStream);
+                string responseFromServer = reader.ReadToEnd();
+                return responseFromServer;
+            } else
+            {
+                return "Please enter an actor query.";
+            }
         }
 
         // POST api/values
